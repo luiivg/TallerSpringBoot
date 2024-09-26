@@ -36,9 +36,10 @@ public class ProductsController {
     }
 
     @PostMapping("/edit/{id}")
-    public ResponseEntity<Product> updateProduct(@PathVariable Long id, @ModelAttribute Product product) {
+    public ResponseEntity<Product> updateProduct(@PathVariable Long id, @RequestBody Product product) {
         product.setId(id);
-        return new ResponseEntity<>(productRepositoty.save(product), HttpStatus.OK);
+        Product newProduct = productRepositoty.save(product);
+        return new ResponseEntity<>(newProduct, HttpStatus.OK);
     }
 
     @GetMapping("/delete/{id}")
