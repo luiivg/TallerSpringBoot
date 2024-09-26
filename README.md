@@ -1,4 +1,8 @@
-# **Practicas de implementación de un servicio Rest 🚀**
+# **Práctica de implementación de JPA con H2**
+![image](gs_accessing_data_jpa/result.png)
+
+
+# **Práctica de implementación de un servicio Rest 🚀**
 
 ## Llamado al servicio sin parametros:
 
