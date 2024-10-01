@@ -1,50 +1,57 @@
 package com.lab.wishlist;
 
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
+import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.stereotype.Controller;
 
-import java.util.List;
-
-@RestController
-@RequestMapping("/api/products")
+@Controller
+@RequestMapping("/products")
 public class ProductsController {
 
-    private final ProductRepositoty productRepositoty;
+    private final ProductRepository productRepository;
+    private static final String REDIRECT_PRODUCTS = "redirect:/products";
 
-    public ProductsController(ProductRepositoty productRepositoty) {
-        this.productRepositoty = productRepositoty;
+    public ProductsController(ProductRepository productRepositoty) {
+        this.productRepository = productRepositoty;
     }
 
-    @PostMapping
-    public ResponseEntity<Product> createProduct(@RequestBody Product product) {
-        Product newProduct = productRepositoty.save(product);
-        return new ResponseEntity<>(newProduct, HttpStatus.CREATED);
+    @GetMapping("/create")
+    public String showFormCreateProduct(Model model) {
+        model.addAttribute("product", new Product());
+        return "products/newEditProduct";
+    }
+
+    @PostMapping("/create")
+    public String createProduct(@ModelAttribute Product product) {
+        productRepository.save(product);
+        return REDIRECT_PRODUCTS;
     }
 
     @GetMapping
-    public ResponseEntity<List<Product>> getAllProducts() {
-        List<Product> productList = (List<Product>) productRepositoty.findAll();
-        return ResponseEntity.ok(productList);
+    public String getAllProducts(Model model) {
+        model.addAttribute("products", productRepository.findAll());
+        return "products/listProduct";
     }
 
-    @GetMapping("/{name}")
-    public ResponseEntity<Product> getProductByName(@PathVariable String name) {
-        return productRepositoty.findByName(name)
-                .map(ResponseEntity::ok)
-                .orElse(ResponseEntity.notFound().build());
+
+    @GetMapping("/edit/{id}")
+    public String showFormUpdateProduct(@PathVariable Long id, Model model) {
+        Product newProduct = productRepository.findById(id)
+                        .orElseThrow(()-> new IllegalArgumentException("ID de producto inválido: " + id));
+        model.addAttribute("product", newProduct);
+        return "products/newEditProduct";
     }
 
     @PostMapping("/edit/{id}")
-    public ResponseEntity<Product> updateProduct(@PathVariable Long id, @RequestBody Product product) {
+    public String updateProduct(@PathVariable Long id, @ModelAttribute Product product) {
         product.setId(id);
-        Product newProduct = productRepositoty.save(product);
-        return new ResponseEntity<>(newProduct, HttpStatus.OK);
+        productRepository.save(product);
+        return REDIRECT_PRODUCTS;
     }
 
     @GetMapping("/delete/{id}")
-    public ResponseEntity<Product> deleteProduct(@PathVariable Long id) {
-        productRepositoty.deleteById(id);
-        return new ResponseEntity<>(HttpStatus.OK);
+    public String deleteProduct(@PathVariable Long id) {
+        productRepository.deleteById(id);
+        return REDIRECT_PRODUCTS;
     }
 }
